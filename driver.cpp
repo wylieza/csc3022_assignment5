@@ -5,9 +5,12 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <numeric>
+#include <algorithm>
+#include "./libs/eigen-3.3.7/Eigen/Core"
 
 //Functions
-double str_to_double(std::string str){
+double str_to_double(const std::string &str){
     std::stringstream ss(str);
     double d;
     ss >> d;
@@ -52,6 +55,14 @@ void print_vector(const std::vector<T> &vec, const std::string &id_str){
     std::cout << std::endl;
 }
 
+void normalize_by_mean(std::vector<double> &vec){
+    double mean = std::accumulate(vec.begin(), vec.end(), 0)/(double) vec.size();
+
+    auto normalizer = [mean](double &d){d -= mean;};
+
+    std::for_each(vec.begin(), vec.end(), normalizer);
+}
+
 
 //Main
 int main(int argc, char *argv[]){
@@ -60,10 +71,38 @@ int main(int argc, char *argv[]){
     std::vector<double> january;
     std::vector<double> july;
 
+    //Load in the data
     load_file(locations, january, july);
+
+    //Normalize the data points
+    normalize_by_mean(january);
+    normalize_by_mean(july);
+
+    //Create the covariance matrix
+    Eigen::MatrixXd covariance(2, 64); //2 by 64 matrix
+    
+    for(int i = 0; i < 64; i++){
+        covariance(0, i) = january[i];
+        covariance(1, i) = july[i];
+    }
+
+    //Print out created matrix
+    std::cout << "Loaded data:\n" << covariance << std::endl;
+
+    covariance *= covariance.transpose();
+
+    //Print out covariance matrix
+    std::cout << "Covariance:\n" << covariance << std::endl;
+
+
+
+
+
+
+
+
     print_vector(locations, "Locations");
     print_vector(january, "January");
     print_vector(july, "July");
-
 
 }
