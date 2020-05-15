@@ -1,5 +1,4 @@
 //Imports
-//#include "processor.h"
 #include <iostream>
 #include <vector>
 #include <fstream>
@@ -7,8 +6,8 @@
 #include <sstream>
 #include <numeric>
 #include <algorithm>
-#include "./libs/eigen-3.3.7/Eigen/Core"
-#include "./libs/eigen-3.3.7/Eigen/EigenValues"
+#include "Core"
+#include "Eigenvalues"
 
 //Functions
 double str_to_double(const std::string &str){
