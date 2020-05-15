@@ -64,7 +64,6 @@ void normalize_by_mean(std::vector<double> &vec){
     std::for_each(vec.begin(), vec.end(), normalizer);
 }
 
-
 //Main
 int main(int argc, char *argv[]){
 
@@ -75,30 +74,11 @@ int main(int argc, char *argv[]){
     //Load in the data
     load_file(locations, january, july);
 
-    //View loaded data
-    //print_vector(locations, "Locations");
-    //print_vector(january, "January");
-    //print_vector(july, "July");
-
     //Normalize the data points
     normalize_by_mean(january);
     normalize_by_mean(july);
 
-    //Print out normalized vectors
-    /*
-    std::cout << "Jan:" << std::endl;
-    for (auto i = january.begin(); i < january.end(); ++i)
-        std::cout << ", " << *i;
-    std::cout << std::endl;
-
-    std::cout << "Jul:" << std::endl;
-    for (auto i = july.begin(); i < july.end(); ++i)
-        std::cout << ", " << *i;
-    std::cout << std::endl;
-    */
-
     //Create the covariance matrix
-    //ROW x COL
     Eigen::MatrixXd covariance(2, 64); //(2 by 64 matrix)
     
     //Populate covariance matrix with all values jan & jul
@@ -113,14 +93,41 @@ int main(int argc, char *argv[]){
     //Divide by N-1 to get covariance
     covariance /= (january.size()-1);
 
-    //Print out covariance
-    std::cout << "Covariance:\n" << covariance << std::endl;
-
     //Find the eigenvalues and eigen vector
     Eigen::EigenSolver<Eigen::MatrixXd> es(covariance);
 
-    //Print the results
-    std::cout << "Eigen Values:\n" << es.eigenvalues() << std::endl;
-    std::cout << "Eigen Vectors:\n" << es.eigenvectors() << std::endl;
+    //Find the total variance
+    double total_variance = es.eigenvalues().real()[0] + es.eigenvalues().real()[1];
+
+
+    //Print Out for Questions:
+    std::cout << "-------------------------------------------------------------------\n";
+    std::cout << "Answers to questions 1 -> 5\n";
+    std::cout << "-------------------------------------------------------------------\n";
+
+    std::cout << "The eigenvalues for the principal components 1 and 2 are:\n\n";
+    std::cout << "Eigen Value for PC 1: " << es.eigenvalues().real()[0] << std::endl;
+    std::cout << "Eigen Value for PC 2: " << es.eigenvalues().real()[1] << std::endl;
+    std::cout << "-------------------------------------------------------------------\n";
+
+    std::cout << "The eigenvectors for the principal components 1 and 2 are:\n\n";
+    std::cout << "Eigen Vector for PC 1 (january, july): " << es.eigenvectors().real()(0, 0) << ", " << es.eigenvectors().real()(1, 0) << std::endl;
+    std::cout << "Eigen Vector for PC 2 (january, july): " << es.eigenvectors().real()(0, 1) << ", " << es.eigenvectors().real()(1, 1) << std::endl;
+    std::cout << "-------------------------------------------------------------------\n";
+
+    std::cout << "The covariance matrix is:\n\n";
+    std::cout << covariance << std::endl;
+    std::cout << "-------------------------------------------------------------------\n";
+
+    std::cout << "The total variance is:\n\n";
+    std::cout << total_variance << std::endl;
+    std::cout << "-------------------------------------------------------------------\n";
+
+    std::cout << "Proportion of total variance accounted for by principle component:\n\n";
+    std::cout << "PC 1: " << (es.eigenvalues().real()[0]/total_variance)*100 << "%" << std::endl;
+    std::cout << "PC 2: " << (es.eigenvalues().real()[1]/total_variance)*100 << "%" << std::endl;
+    std::cout << "-------------------------------------------------------------------\n";
+
+
 
 }
