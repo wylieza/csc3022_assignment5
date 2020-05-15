@@ -57,7 +57,7 @@ void print_vector(const std::vector<T> &vec, const std::string &id_str){
 }
 
 void normalize_by_mean(std::vector<double> &vec){
-    double mean = std::accumulate(vec.begin(), vec.end(), 0)/(double) vec.size();
+    double mean = std::accumulate(vec.begin(), vec.end(), (double) 0)/(double) vec.size();
 
     auto normalizer = [mean](double &d){d -= mean;};
 
@@ -76,15 +76,16 @@ int main(int argc, char *argv[]){
     load_file(locations, january, july);
 
     //View loaded data
-    print_vector(locations, "Locations");
-    print_vector(january, "January");
-    print_vector(july, "July");
+    //print_vector(locations, "Locations");
+    //print_vector(january, "January");
+    //print_vector(july, "July");
 
     //Normalize the data points
     normalize_by_mean(january);
     normalize_by_mean(july);
 
     //Print out normalized vectors
+    /*
     std::cout << "Jan:" << std::endl;
     for (auto i = january.begin(); i < january.end(); ++i)
         std::cout << ", " << *i;
@@ -94,47 +95,31 @@ int main(int argc, char *argv[]){
     for (auto i = july.begin(); i < july.end(); ++i)
         std::cout << ", " << *i;
     std::cout << std::endl;
-
+    */
 
     //Create the covariance matrix
     //ROW x COL
     Eigen::MatrixXd covariance(2, 64); //(2 by 64 matrix)
-    //Eigen::MatrixXd covariance(64, 2); //(64 by 2 matrix)
     
+    //Populate covariance matrix with all values jan & jul
     for(int i = 0; i < 64; i++){
         covariance(0, i) = january[i];
         covariance(1, i) = july[i];
     }
 
-    //Calculate Covariance Manually
-    std::vector<std::vector<double>> covarianceV({{0,0}, {0,0}});
-    for (auto i = 0; i < january.size(); ++i){
-        covarianceV[0][0] += january[i]*january[i];
-        covarianceV[0][1] += january[i]*july[i];
-        covarianceV[1][1] += july[i]*july[i];
-        covarianceV[1][0] = covarianceV[0][1];
-    }
-    //Print results
-    std::cout << "Vector calculation:\n" << covarianceV[0][0] << " " << covarianceV[0][1] << std::endl << covarianceV[1][0] << " " << covarianceV[1][1] << std::endl;
-
-
-    //Print out created matrix
-    //std::cout << "Loaded data:\n" << covariance << std::endl;
-
     //Accumulation Stage
     covariance *= covariance.transpose();
 
-    //Print out covariance matrix
-    std::cout << "Accumulation Result:\n" << covariance << std::endl;
-
+    //Divide by N-1 to get covariance
     covariance /= (january.size()-1);
 
-    //Print out normalized covariance matrix
-    std::cout << "Normalized Covariance:\n" << covariance << std::endl;
+    //Print out covariance
+    std::cout << "Covariance:\n" << covariance << std::endl;
 
     //Find the eigenvalues and eigen vector
     Eigen::EigenSolver<Eigen::MatrixXd> es(covariance);
 
+    //Print the results
     std::cout << "Eigen Values:\n" << es.eigenvalues() << std::endl;
     std::cout << "Eigen Vectors:\n" << es.eigenvectors() << std::endl;
 
